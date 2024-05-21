@@ -33,7 +33,7 @@ object ChatProtocol {
         for {
           userExists <- redisP.usernameExists(name)
           maybeUser <-
-            if(userExists == true) {
+            if (userExists == true) {
               Left("User name exists").pure[F]
             } else {
               postgresP.createUser(name)
@@ -118,14 +118,11 @@ object ChatProtocol {
           case Some(roomid) =>
             redisP.listUserIds(roomid).flatMap { u =>
               redisP.getSelectedUsers(u.toList.head, u.toList.tail).map {
-                maybelist =>
-                  maybelist match {
-                    case Some(lu) =>
-                      lu.map(_.name.name)
-                        .sorted
-                        .mkString("Room Members:\n\t", "\n\t", "")
-                    case None => ""
-                  }
+                case Some(lu) =>
+                  lu.map(_.name.name)
+                    .sorted
+                    .mkString("Room Members:\n\t", "\n\t", "")
+                case None => ""
               }
             }
           case None => "You are not currently in a room".pure[F]
